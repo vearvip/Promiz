@@ -74,3 +74,28 @@ const promiz =  new Promiz((resolve, reject) => {
 })
 console.log(promiz) // Promiz {status: "resolved"}
 ```
+上面resolve、reject接收的value，和reason并没有被用到，在这又涉及到Promise的一个至关重要的方法**then**
+
+## Promise的then方法
+先来看then方法的定义：
+
+- 一个 promise 的 then 方法接受两个可选参数
+  - onFulfilled(onResolved)
+    - 如果onResolved不是函数，则会被忽略
+    - 如果onResolved是函数，一定是在 promise 是 fulfilled 状态后调用，并且接受一个参数 **value**
+    - 它最多被调用一次
+
+  - onRejected
+    - 如果onRejected不是函数，则会被忽略
+    - 如果onRejected是函数，一定是在 promise 是 fulfilled 状态后调用，并且接受一个参数 **reason**
+    - 它最多被调用一次
+
+- 在同一个 promise 实例中，then 可以链式调用多次
+- then 方法一定返回一个 promise
+
+上面几点是比较简单且不全面的定义，更全面的定义请参考[Promises/A+规范](http://blog.vear.vip/2019/09/14/2019-09-14%20Promises%20A+%E8%A7%84%E8%8C%83/)
+
+下面，就这个定义实现一个then方法
+```javascript
+
+```
