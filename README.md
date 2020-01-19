@@ -1,5 +1,5 @@
 # Promiz
-**这是一个Promises/A+规范的简单实现**
+**这是一个Promise的简版实现**
 > 关于[Promises/A+](http://blog.vear.vip/2019/09/14/2019-09-14%20Promises%20A+%E8%A7%84%E8%8C%83/)，请点击[这里](http://blog.vear.vip/2019/09/14/2019-09-14%20Promises%20A+%E8%A7%84%E8%8C%83/)查看具体的规范。
 
 ## 首先定义一个Promiz类，用以实现Promise
@@ -74,7 +74,7 @@ const promiz =  new Promiz((resolve, reject) => {
 })
 console.log(promiz) // Promiz {status: "resolved"}
 ```
-上面resolve、reject接收的value，和reason并没有被用到，在这又涉及到Promise的一个至关重要的方法**then**
+上面resolve、reject接收的value，和reason并没有被用到，在这又涉及到Promise的一个至关重要的方法 **then**
 
 ## Promise的then方法
 先来看then方法的定义：
@@ -97,5 +97,71 @@ console.log(promiz) // Promiz {status: "resolved"}
 
 下面，就这个定义实现一个then方法
 ```javascript
+class Promiz {
+  static PENDING = 'pending'
+  static RESOLVED = 'resolved' // 方便理解，使用resolved代替fulfilled
+  static REJECTED = 'rejected'
 
+  status = Promiz.PENDING // 状态
+  value = undefined // 成功结果
+  reason = undefined // 失败原因
+
+
+  constructor(executor) {
+    if (typeof executor !== 'function') {
+      throw Error('🐸 - 呱呱呱')
+    }
+    this.status = Promiz.PENDING
+    executor(this.resolve, this.reject) // 这个函数接收2个函数，resolve函数在异步/同步操作成功时执行，reject函数在异步/同步操作失败时执行，具体由Promiz对象创建者来选择执行哪一个
+
+  }
+
+  resolve = (value) => {
+    if (this.status === Promiz.PENDING) {
+      this.status = Promiz.RESOLVED
+      this.value = value // 保存成功结果
+    }
+  }
+
+  reject = (reason) => {
+    if (this.status === Promiz.PENDING) {
+      this.status = Promiz.REJECTED
+      this.reason = reason // 保存失败原因
+    }
+  }
+
+  then = (onResolved, onRejected) => {
+    if (this.status === Promiz.RESOLVED) {
+      if (typeof onResolved === 'function') {
+        onResolved(this.value)
+      }
+
+    }
+    if (this.status === Promiz.REJECTED) {
+      if (typeof onRejected === 'function') {
+        onRejected(this.reason)
+      }
+    }
+  }
+}
+```
+
+这样的话进行一个简单的校验，发现是可以通过then方法拿到值的
+```javascript
+let p1 = new Promiz((res, rej) => {
+  res('ojbk')
+})
+p1.then(value => { console.log(value) })
+// ojbk
+```
+
+但碰到异步，就失灵了
+```javascript
+let p9 = new Promiz((res, rej) => {
+  setTimeout(() => {
+    res('hallo')
+  }, 50)
+})
+p9.then(value => { console.log(value) })
+// undefined
 ```
