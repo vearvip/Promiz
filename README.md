@@ -165,3 +165,90 @@ let p9 = new Promiz((res, rej) => {
 p9.then(value => { console.log(value) })
 // undefined
 ```
+
+异步的事情就必须等到异步结束以后再去进行操作，所以状态的作用就出来了
+
+判断当前的Promiz状态是什么，如果是pending态，就把onResolved, onRejected俩函数存起来
+
+直到异步任务结束，那什么时候能结束呢，用户自己调用resolve，reject方法的时候，这个时候再执行就行了
+
+
+```javascript
+class Promiz {
+  static PENDING = 'pending'
+  static RESOLVED = 'resolved' // 方便理解，使用resolved代替fulfilled
+  static REJECTED = 'rejected'
+
+  status = Promiz.PENDING // 状态
+  value = undefined // 成功结果
+  reason = undefined // 失败原因
+
+  onResolvedQueue = [] // 保存成功的函数队列
+  onRejectedQueue = [] // 保存失败的函数队列
+
+  constructor(executor) {
+    if (typeof executor !== 'function') {
+      throw Error('🐸 - 呱呱呱')
+    }
+    this.status = Promiz.PENDING
+    executor(this.resolve, this.reject) // 这个函数接收2个函数，resolve函数在异步/同步操作成功时执行，reject函数在异步/同步操作失败时执行，具体由Promiz对象创建者来选择执行哪一个
+
+  }
+
+  resolve = (value) => {
+    if (this.status === Promiz.PENDING) {
+      this.value = value // 保存成功结果
+
+      this.onResolvedQueue.forEach(onResolved => onResolved(value))
+      this.status = Promiz.RESOLVED
+    }
+  }
+
+  reject = (reason) => {
+    if (this.status === Promiz.PENDING) {
+      this.reason = reason // 保存失败原因
+
+      this.onResolvedQueue.forEach(onRejected => onRejected(reason))
+      this.status = Promiz.REJECTED
+    }
+  }
+
+  then = (onResolved, onRejected) => {
+    
+    if (this.status === Promiz.PENDING) {
+      if (typeof onResolved === 'function') {
+        this.onResolvedQueue.push(onResolved)
+      }
+      if (typeof onRejected === 'function') {
+        this.onRejectedQueue.push(onRejected)
+      }
+    }
+    if (this.status === Promiz.RESOLVED) {
+      if (typeof onResolved === 'function') {
+        onResolved(this.value)
+      }
+
+    }
+    if (this.status === Promiz.REJECTED) {
+      if (typeof onRejected === 'function') {
+        onRejected(this.reason)
+      }
+    }
+  }
+}
+```
+
+测试一下，没问题，可以拿到异步后的结果
+```javascript
+let p1 = new Promiz((res, rej) => {
+  setTimeout(() => {
+    res('等待2秒以后，拿到这句话')
+  }, 2000);
+})
+
+void async function test(promiz) {
+  const value = await promiz
+  console.log(value)
+}(p1)
+// 等待2秒以后，拿到这句话
+```

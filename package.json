@@ -1,0 +1,20 @@
+{
+  "name": "Promiz",
+  "version": "1.0.0",
+  "description": "**这是一个Promise的简版实现**\r > 关于[Promises/A+](http://blog.vear.vip/2019/09/14/2019-09-14%20Promises%20A+%E8%A7%84%E8%8C%83/)，请点击[这里](http://blog.vear.vip/2019/09/14/2019-09-14%20Promises%20A+%E8%A7%84%E8%8C%83/)查看具体的规范。",
+  "main": "Promiz.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vearvip/Promiz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vearvip/Promiz/issues"
+  },
+  "homepage": "https://github.com/vearvip/Promiz#readme"
+}
